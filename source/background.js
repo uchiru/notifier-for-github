@@ -41,7 +41,6 @@ async function handleLastModified(newLastModified) {
 async function updateNotificationCount() {
 	const response = await getNotificationCount();
 	const {count, interval, lastModified} = response;
-
 	renderCount(count);
 	scheduleNextAlarm(interval);
 	handleLastModified(lastModified);

@@ -137,6 +137,7 @@ export async function checkNotifications(lastModified) {
 		});
 		/* eslint-enable camelcase */
 	}
+	notifications = notifications.filter(n=>n.reason==='assign' || n.reason==='state_change');
 
 	if (playNotifSound && notifications.length > 1) {
 		await playNotificationSound();
@@ -146,3 +147,4 @@ export async function checkNotifications(lastModified) {
 		await showNotifications(notifications);
 	}
 }
+

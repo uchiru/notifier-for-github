@@ -7,6 +7,7 @@ const optionsStorage = new OptionsSync({
 		playNotifSound: false,
 		showDesktopNotif: false,
 		onlyParticipating: false,
+		onlyAssigned: true,
 		reuseTabs: false,
 		updateCountOnNavigation: false,
 		filterNotifications: false

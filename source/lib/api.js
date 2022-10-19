@@ -14,10 +14,11 @@ export async function getGitHubOrigin() {
 }
 
 export async function getTabUrl() {
-	const {onlyParticipating} = await optionsStorage.getAll();
-	const useParticipating = onlyParticipating ? '/participating' : '';
+	const {onlyParticipating, onlyAssigned} = await optionsStorage.getAll();
+	let useOnly = onlyParticipating ? '/participating' : '';
+	useOnly = onlyAssigned ? '?query=reason:assign' : '';
 
-	return `${await getGitHubOrigin()}/notifications${useParticipating}`;
+	return `${await getGitHubOrigin()}/notifications${useOnly}`;
 }
 
 export async function getApiUrl() {
@@ -87,7 +88,7 @@ export async function makeApiRequest(endpoint, parameters) {
 }
 
 export async function getNotificationResponse({page = 1, maxItems = 100, lastModified = ''}) {
-	const {onlyParticipating} = await optionsStorage.getAll();
+	const {onlyParticipating, onlyAssigned} = await optionsStorage.getAll();
 	const parameters = {
 		page,
 		per_page: maxItems // eslint-disable-line camelcase
@@ -95,6 +96,9 @@ export async function getNotificationResponse({page = 1, maxItems = 100, lastMod
 
 	if (onlyParticipating) {
 		parameters.participating = onlyParticipating;
+	}
+	if (onlyAssigned) {
+		parameters.assign = onlyAssigned;
 	}
 
 	if (lastModified) {
@@ -123,27 +127,13 @@ export async function getNotifications({page, maxItems, lastModified, notificati
 }
 
 export async function getNotificationCount() {
-	const {headers, json: notifications} = await getNotificationResponse({maxItems: 1});
+	const {headers, json: notifications} = await getNotificationResponse({maxItems: 200});
 
 	const interval = Number(headers.get('X-Poll-Interval'));
 	const lastModified = (new Date(headers.get('Last-Modified'))).toISOString();
-	const linkHeader = headers.get('Link');
-
-	if (linkHeader === null) {
-		return {
-			count: notifications.length,
-			interval,
-			lastModified
-		};
-	}
-
-	const {last} = parseLinkHeader(linkHeader);
-	const {searchParams} = new URL(last);
-
-	// We get notification count by asking the API to give us only one notification
-	// for each page, then the last page number gives us the count
-	const count = Number(searchParams.get('page'));
-
+	
+	let count = 0;
+	if(notifications) count = notifications.filter(n=>(n.reason==='assign' || n.reason==='state_change')).length;
 	return {
 		count,
 		interval,
