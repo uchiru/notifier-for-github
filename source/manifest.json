@@ -1,6 +1,6 @@
 {
-	"name": "Notifier for GitHub",
-	"version": "0.0.0",
+	"name": "Uchi.ru Notifier for GitHub",
+	"version": "0.0.10",
 	"description": "Displays your GitHub notifications unread count",
 	"homepage_url": "https://github.com/sindresorhus/notifier-for-github",
 	"manifest_version": 2,
